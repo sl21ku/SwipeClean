@@ -1,0 +1,37 @@
+name: iOS CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: macos-14
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.4'
+
+    - name: Install XcodeGen
+      run: |
+        brew install xcodegen
+
+    - name: Generate Xcode Project
+      run: |
+        xcodegen generate
+
+    - name: Run Unit & UI Tests
+      run: |
+        xcodebuild test \
+          -project SwipeClean.xcodeproj \
+          -scheme SwipeClean \
+          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -only-testing SwipeCleanTests \
+          -only-testing SwipeCleanUITests
